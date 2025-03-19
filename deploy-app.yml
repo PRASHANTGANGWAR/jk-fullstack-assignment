@@ -1,0 +1,105 @@
+- hosts: ec2_instances
+  become: true
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker dependencies
+      apt:
+        name:
+          - docker.io
+          - python3-pip
+        state: present
+
+    - name: Install Docker Compose
+      pip:
+        name: docker-compose
+        state: present
+        executable: pip3
+
+    - name: Clone Node.js app repository
+      git:
+        repo: https://gitlab.com/assignments9642411/blog-app.git
+        dest: /var/www/html/blog-app
+
+    - name: Get instance public IP
+      set_fact:
+        instance_ip: "{{ ansible_host }}"
+
+    - name: Get instance public DNS
+      shell: curl -s http://169.254.169.254/latest/meta-data/public-hostname
+      register: ec2_dns
+
+    - name: Set DNS URL as a fact
+      set_fact:
+        dns_url: "http://{{ ec2_dns.stdout }}"
+
+    - name: Print Instance Details
+      debug:
+        msg:
+          - "Instance Public IP: {{ instance_ip }}"
+          - "Instance Public DNS: {{ dns_url }}"
+
+    - name: Ensure backend .env file exists
+      file:
+        path: /var/www/html/blog-app/be/.env
+        state: touch
+        mode: '0644'
+
+    - name: Update FRONTEND_URL in backend .env (Uses IP)
+      lineinfile:
+        path: /var/www/html/blog-app/be/.env
+        regexp: '^FRONTEND_URL='
+        line: "FRONTEND_URL=http://{{ instance_ip }}:5173"
+        create: yes
+
+    - name: Update BACKEND_URL in backend .env (Uses DNS)
+      lineinfile:
+        path: /var/www/html/blog-app/be/.env
+        regexp: '^BACKEND_URL='
+        line: "BACKEND_URL={{ dns_url }}:3001"
+        create: yes
+
+    - name: Ensure frontend .env file exists
+      file:
+        path: /var/www/html/blog-app/fe/.env
+        state: touch
+        mode: '0644'
+
+    - name: Update VITE_API_URL in frontend .env (Uses IP)
+      lineinfile:
+        path: /var/www/html/blog-app/fe/.env
+        regexp: '^VITE_API_URL='
+        line: "VITE_API_URL=http://{{ instance_ip }}:3001"
+        create: yes
+
+    - name: Build Docker image for backend
+      command: docker build -t be-app .
+      args:
+        chdir: /var/www/html/blog-app/be
+
+    - name: Stop and remove old backend container if running
+      command: docker rm -f be-app-container
+      ignore_errors: yes
+
+    - name: Run backend container
+      command: >
+        docker run -d --name be-app-container -p 3001:3001
+        --env-file /var/www/html/blog-app/be/.env
+        --restart always be-app
+
+    - name: Build Docker image for frontend
+      command: docker build -t fe-app .
+      args:
+        chdir: /var/www/html/blog-app/fe
+
+    - name: Stop and remove old frontend container if running
+      command: docker rm -f fe-app-container
+      ignore_errors: yes
+
+    - name: Run frontend container
+      command: >
+        docker run -d --name fe-app-container -p 5173:5173
+        --env-file /var/www/html/blog-app/fe/.env
+        --restart always fe-app
