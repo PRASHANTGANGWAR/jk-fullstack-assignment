@@ -127,3 +127,8 @@ resource "null_resource" "run_ansible" {
     working_dir = path.module
   }
 }
+
+output "private_key_pem" {
+  value     = tls_private_key.rsa_4096.private_key_pem
+  sensitive = true
+}
