@@ -73,8 +73,8 @@ const Header = () => {
         </Box>
 
         {email && (
-          <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
-            Hi, {email}
+          <Typography variant="body1" sx={{ color: theme.palette.text.primary }}>
+            Hi, {email.split('@')[0]}
           </Typography>
         )}
 

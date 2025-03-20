@@ -5,9 +5,10 @@ A full-stack blog application with Google/Facebook authentication, built using:
 - 🔧 **NestJS** for the backend (with PassportJS and JWT)
 - ⚛️ **React** for the frontend (Google/Facebook login)
 - 🐳 **Docker** for containerization
-- ☁️ **AWS ECR & EKS** for deployment
+- ☁️ **AWS EC2** for deployment
 - 🛆 **Terraform** for infrastructure as code
-- 🧪 **Jest** and **Cypress** for testing
+- 🧪 **Jest** for testing
+- 🔁 **GitHub Actions** for CI/CD
 
 ---
 
@@ -15,11 +16,18 @@ A full-stack blog application with Google/Facebook authentication, built using:
 
 ```
 .
-├── backend/        # NestJS Backend
-├── frontend/       # React Frontend
-├── docker/         # Docker-related configs
-├── eks-terraform/  # Terraform scripts for AWS infrastructure
-└── README.md
+├── jk-fullstack-assignment/
+│   ├── .github/workflows/        # GitHub Actions workflows
+│   ├── .terraform/               # Terraform working directory (auto-generated)
+│   ├── be/                       # Backend (NestJS)
+│   ├── fe/                       # Frontend (React)
+│   ├── .gitignore                # Git ignore file
+│   ├── deploy-app.yml            # Ansible playbook for deployment
+│   ├── dynamic_inventory.ini     # Ansible inventory file (can be dynamic/static)
+│   ├── inventory.tpl             # Ansible dynamic inventory template
+│   ├── main.tf                   # Terraform main configuration
+│   └── README.md                 # Project documentation
+
 ```
 
 ---
@@ -29,8 +37,8 @@ A full-stack blog application with Google/Facebook authentication, built using:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/PRASHANTGANGWAR/jk-fullstack-assignment.git
+cd jk-fullstack-assignment
 ```
 
 ---
@@ -40,7 +48,7 @@ cd <your-repo>
 ### 🔧 Setup
 
 ```bash
-cd backend
+cd be
 npm install
 ```
 
@@ -54,50 +62,30 @@ npm run start:dev
 
 ```bash
 npm run test          # Run unit tests (Jest)
-npm run test:e2e      # Run E2E tests
 ```
 
 ---
 
 ### ⚙️ Environment Variables
 
-Create a `.env` file in `backend/`:
+Create a `.env` file in `be/` with correct values.
 
-```env
-PORT=3000
-JWT_SECRET=your_jwt_secret
-GOOGLE_CLIENT_ID=xxx
-GOOGLE_CLIENT_SECRET=xxx
-FACEBOOK_APP_ID=xxx
-FACEBOOK_APP_SECRET=xxx
-CALLBACK_URL=http://localhost:3000/auth/google/callback
-```
 
 ---
 
 ### 🐳 Dockerize Backend
 
 ```bash
-cd backend
-docker build -t blog-backend .
+cd be
+docker build -t be-app .
 ```
-
-Push to ECR:
-
-```bash
-aws ecr get-login-password | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
-docker tag blog-backend:latest <account-id>.dkr.ecr.<region>.amazonaws.com/blog-backend:latest
-docker push <account-id>.dkr.ecr.<region>.amazonaws.com/blog-backend:latest
-```
-
----
 
 ## 🎨 Frontend (React)
 
 ### 🔧 Setup
 
 ```bash
-cd frontend
+cd fe
 npm install
 ```
 
@@ -111,17 +99,23 @@ npm start
 
 ```bash
 npm run test         # Run unit tests
-npx cypress open     # Integration testing
 ```
 
 ### ⚙️ Environment Variables
 
-Create a `.env` file in `frontend/`:
+Create a `.env` file in `fe/`:
 
 ```env
-REACT_APP_API_URL=http://localhost:3000
-REACT_APP_GOOGLE_CLIENT_ID=xxx
-REACT_APP_FACEBOOK_APP_ID=xxx
+VITE_API_URL=http://localhost:3001
+```
+
+---
+
+### 🐳 Dockerize frontend
+
+```bash
+cd fe
+docker build -t fe-app .
 ```
 
 ---
@@ -132,54 +126,11 @@ REACT_APP_FACEBOOK_APP_ID=xxx
 
 - Docker installed and configured
 - AWS CLI configured
-- Terraform initialized (`cd eks-terraform && terraform init`)
+- Terraform initialized (`terraform init`)
 
-### 1. 🏗️ Create EKS Cluster
-
-```bash
-cd eks-terraform
-terraform apply
-```
-
-Once successful, configure `kubectl`:
 
 ```bash
-aws eks --region <region> update-kubeconfig --name <cluster_name>
+terraform apply -auto-approve
 ```
 
-### 2. 🚀 Deploy Backend
-
-```bash
-kubectl apply -f backend-deployment.yaml
-kubectl apply -f backend-service.yaml
-```
-
-### 3. 🚀 Deploy Frontend
-
-(Optional, once frontend is containerized and uploaded to ECR):
-
-```bash
-kubectl apply -f frontend-deployment.yaml
-kubectl apply -f frontend-service.yaml
-```
-
----
-
-## 📊 Monitoring & Logs
-
-```bash
-kubectl get pods
-kubectl logs <pod-name>
-```
-
----
-
-## ✅ Features
-
-- Google & Facebook OAuth
-- JWT-based session handling
-- Post CRUD for authenticated users
-- Public post detail view
-- Full test suite (Jest + Cypress)
-- AWS EKS deployment via Terraform
 
