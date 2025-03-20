@@ -1,105 +1,104 @@
 - hosts: ec2_instances
   become: true
+  vars:
+    ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
   tasks:
     - name: Update apt cache
       apt:
         update_cache: yes
-
     - name: Install Docker dependencies
       apt:
         name:
           - docker.io
           - python3-pip
         state: present
-
     - name: Install Docker Compose
       pip:
         name: docker-compose
         state: present
         executable: pip3
-
-    - name: Clone Node.js app repository
+    - name: Clone or update Node.js app repository
       git:
         repo: https://github.com/PRASHANTGANGWAR/jk-fullstack-assignment.git
-        dest: /var/www/html/blog-app
-
+        dest: /var/www/html/jk-fullstack-assignment
+        update: yes
+        force: yes
     - name: Get instance public IP
       set_fact:
         instance_ip: "{{ ansible_host }}"
-
     - name: Get instance public DNS
       shell: curl -s http://169.254.169.254/latest/meta-data/public-hostname
       register: ec2_dns
-
     - name: Set DNS URL as a fact
       set_fact:
         dns_url: "http://{{ ec2_dns.stdout }}"
-
     - name: Print Instance Details
       debug:
         msg:
           - "Instance Public IP: {{ instance_ip }}"
           - "Instance Public DNS: {{ dns_url }}"
-
     - name: Ensure backend .env file exists
       file:
-        path: /var/www/html/blog-app/be/.env
+        path: /var/www/html/jk-fullstack-assignment/be/.env
         state: touch
         mode: '0644'
-
-    - name: Update FRONTEND_URL in backend .env (Uses IP)
+    - name: Update backend .env file with required variables
       lineinfile:
-        path: /var/www/html/blog-app/be/.env
-        regexp: '^FRONTEND_URL='
-        line: "FRONTEND_URL=http://{{ instance_ip }}:5173"
+        path: /var/www/html/jk-fullstack-assignment/be/.env
+        regexp: "^{{ item.key }}="
+        line: "{{ item.key }}={{ item.value }}"
         create: yes
-
-    - name: Update BACKEND_URL in backend .env (Uses DNS)
-      lineinfile:
-        path: /var/www/html/blog-app/be/.env
-        regexp: '^BACKEND_URL='
-        line: "BACKEND_URL={{ dns_url }}:3001"
-        create: yes
-
+      loop:
+        - { key: "APP_PORT", value: "3001" }
+        - { key: "FRONTEND_URL", value: "http://{{ instance_ip }}:5173" }
+        - { key: "BACKEND_URL", value: "{{ dns_url }}:3001" }
+        - { key: "JWT_PRIVATE_KEY", value: "46fTZa2OeMRYkOvGf1EYnJdG5McTATTnd2DQGuEajao=" }
+        - { key: "GOOGLE_CLIENT_ID", value: "162484514028-isnfps4rgu3gvnaubkd72hldplt450vu.apps.googleusercontent.com" }
+        - { key: "GOOGLE_SECRET", value: "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" }
+        - { key: "DB_HOST", value: "13.127.52.168" }
+        - { key: "DB_PORT", value: "3306" }
+        - { key: "DB_USER", value: "root" }
+        - { key: "DB_PASSWORD", value: "determined@123890" }
+        - { key: "DB_DATABASE", value: "blog" }
+        - { key: "CORS_ORIGIN", value: "http://localhost:4200,http://localhost:3000,http://localhost:5173,http://127.0.0.1:5500,*" }
     - name: Ensure frontend .env file exists
       file:
-        path: /var/www/html/blog-app/fe/.env
+        path: /var/www/html/jk-fullstack-assignment/fe/.env
         state: touch
         mode: '0644'
-
-    - name: Update VITE_API_URL in frontend .env (Uses IP)
+    - name: Update frontend .env file
       lineinfile:
-        path: /var/www/html/blog-app/fe/.env
+        path: /var/www/html/jk-fullstack-assignment/fe/.env
         regexp: '^VITE_API_URL='
         line: "VITE_API_URL=http://{{ instance_ip }}:3001"
         create: yes
-
     - name: Build Docker image for backend
       command: docker build -t be-app .
       args:
-        chdir: /var/www/html/blog-app/be
-
+        chdir: /var/www/html/jk-fullstack-assignment/be
+      become: yes
     - name: Stop and remove old backend container if running
       command: docker rm -f be-app-container
       ignore_errors: yes
-
+      become: yes
     - name: Run backend container
       command: >
         docker run -d --name be-app-container -p 3001:3001
-        --env-file /var/www/html/blog-app/be/.env
+        --env-file /var/www/html/jk-fullstack-assignment/be/.env
         --restart always be-app
-
+      become: yes
     - name: Build Docker image for frontend
       command: docker build -t fe-app .
       args:
-        chdir: /var/www/html/blog-app/fe
-
+        chdir: /var/www/html/jk-fullstack-assignment/fe
+      become: yes
     - name: Stop and remove old frontend container if running
       command: docker rm -f fe-app-container
       ignore_errors: yes
-
+      become: yes
     - name: Run frontend container
       command: >
         docker run -d --name fe-app-container -p 5173:5173
-        --env-file /var/www/html/blog-app/fe/.env
+        --env-file /var/www/html/jk-fullstack-assignment/fe/.env
         --restart always fe-app
+      become: yes
