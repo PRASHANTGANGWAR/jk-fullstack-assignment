@@ -17,10 +17,10 @@ import { JwtModule as JwtRootModule, JwtSecretRequestType } from '@nestjs/jwt';
           secretOrKeyProvider(type: JwtSecretRequestType) {
             switch (type) {
               case JwtSecretRequestType.SIGN:
-                return config.get<string>('jwtPrivateKey'); // Correct return statement
+                return config.get<string>('jwtPrivateKey'), 'utf8'; // Correct return statement
 
               case JwtSecretRequestType.VERIFY:
-                return config.get<string>('jwtPublicKey'); // Correct return statement
+                return config.get<string>('jwtPublicKey'), 'utf8'; // Correct return statement
 
               default:
                 throw new Error('Invalid JwtSecretRequestType');

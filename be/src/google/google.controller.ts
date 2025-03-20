@@ -39,8 +39,8 @@ export class GoogleController {
       };
 
       // Check if the user already exists in the system
-      let check = await this.authService.checkUserExists(userData);
-      if (!check) {
+      user = await this.authService.checkUserExists(userData);
+      if (!user) {
         // Save user if not found
         user = await this.authService.createUser(userData);
       }

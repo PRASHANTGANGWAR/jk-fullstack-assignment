@@ -38,8 +38,9 @@ const Header = () => {
     if (link === "LOGIN") {
       setModalOpen(true);
     } else if (link === "LOGOUT") {
-      // setData(null);
+      setData(null);
       localStorage.clear();
+      navigate('/')
     } else if (link === "Create BLog") {
       navigate(ROUTES.CREATEBLOG);
     } else if (link === "My Blogs") {

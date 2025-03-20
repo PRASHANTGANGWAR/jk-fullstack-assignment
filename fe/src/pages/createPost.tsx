@@ -1,13 +1,19 @@
 import React, { useState } from "react";
-import { TextField, Button, Typography, Box } from "@mui/material";
+import { TextField, Button, Typography, Box, Snackbar, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import ROUTES from "../utils/routes"
+import ROUTES from "../utils/routes";
 
 const CreatePost: React.FC = () => {
   const [formData, setFormData] = useState({
     title: "",
     body: "",
     image: "",
+  });
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "error" as "error" | "success" | "warning",
   });
 
   const navigate = useNavigate();
@@ -38,7 +44,7 @@ const CreatePost: React.FC = () => {
     if (fileInput.files?.[0]) {
       formDataToSend.append("image", fileInput.files[0]);
     }
-    
+
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/post`, {
         method: "POST",
@@ -49,12 +55,20 @@ const CreatePost: React.FC = () => {
       });
 
       if (response.ok) {
-        navigate(ROUTES.POSTLIST);
+        setSnackbar({ open: true, message: "Post created successfully!", severity: "success" });
+        setTimeout(() => navigate(ROUTES.POSTLIST), 1000);
       } else {
-        throw new Error("Failed to submit form");
+        if (response.status === 401) {
+          setSnackbar({ open: true, message: "Unauthorized! Please log in.", severity: "warning" });
+        } else if (response.status === 500) {
+          setSnackbar({ open: true, message: "Server error. Please try again later.", severity: "error" });
+        } else {
+          setSnackbar({ open: true, message: "Failed to submit form.", severity: "error" });
+        }
       }
     } catch (error) {
       console.error("API Error:", error);
+      setSnackbar({ open: true, message: "An error occurred while submitting.", severity: "error" });
     }
   };
 
@@ -111,6 +125,11 @@ const CreatePost: React.FC = () => {
           Submit
         </Button>
       </Box>
+
+      {/* Snackbar for notifications */}
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </Box>
   );
 };
