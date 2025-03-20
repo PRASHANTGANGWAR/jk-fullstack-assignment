@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   AppBar,
   Toolbar,
@@ -9,16 +9,20 @@ import {
   MenuItem,
   useMediaQuery,
   useTheme,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-
+import DarkModeIcon from "@mui/icons-material/DarkMode"; // Moon Icon
+import LightModeIcon from "@mui/icons-material/LightMode"; // Sun Icon
 import logo from "../assets/images/Blog.png";
 import CustomModal from "./modal";
 import { useNavigate } from "react-router-dom";
 import ROUTES from "../utils/routes";
+import { ThemeContext } from "../context/themeContext"; // Import Theme Context
 
 const Header = () => {
   const theme = useTheme();
+  const { toggleTheme, darkMode } = useContext(ThemeContext); // Get theme state from context
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [data, setData] = useState<string | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -40,38 +44,41 @@ const Header = () => {
     } else if (link === "LOGOUT") {
       setData(null);
       localStorage.clear();
-      navigate('/')
+      navigate("/");
     } else if (link === "Create BLog") {
       navigate(ROUTES.CREATEBLOG);
     } else if (link === "My Blogs") {
-      navigate(ROUTES.POSTLIST); // ranme routes in main file
+      navigate(ROUTES.POSTLIST);
+    } else if (link === "All Posts") {
+      navigate(ROUTES.ALLPOST);
     }
     handleMenuClose();
   };
-  const navLinks = data || localStorage.getItem('token')
-    ? ["My Blogs", "Create BLog", "LOGOUT"]
-    : ["LOGIN"];
+
+  const navLinks =
+    data || localStorage.getItem("token")
+      ? ["My Blogs", "Create BLog", "LOGOUT", "All Posts"]
+      : ["LOGIN", "All Posts"];
   const email = localStorage.getItem("email");
 
   return (
-    <>
-      <AppBar position="static" sx={{ backgroundColor: "#000000", p: 1 }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <img
-              onClick={() => navigate("/")}
-              src={logo}
-              alt="Logo"
-              style={{ width: "40px", height: "40px", marginRight: "10px" }}
-            />
-            <Typography
-              variant={isMobile ? "h5" : "h3"}
-              sx={{ fontWeight: "bold", color: "#9b6a3e" }}
-            >
-              BLOGS
-            </Typography>
-          </Box>
-          {email && <Typography> Hi, {email}</Typography>}
+    <AppBar position="static" sx={{ backgroundColor: theme.palette.background.default, p: 1 }}>
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {/* Logo and Title */}
+        <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => navigate("/")}>
+          <img src={logo} alt="Logo" style={{ width: "50px", height: "50px", marginRight: "10px" }} />
+          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#FF9800" }}>
+            BLOGS
+          </Typography>
+        </Box>
+
+        {email && (
+          <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
+            Hi, {email}
+          </Typography>
+        )}
+
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           {isMobile ? (
             <>
               <IconButton color="inherit" onClick={handleMenuOpen}>
@@ -81,6 +88,7 @@ const Header = () => {
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
+                sx={{ "& .MuiPaper-root": { backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary } }}
               >
                 {navLinks.map((link) => (
                   <MenuItem key={link} onClick={() => handleNavClick(link)}>
@@ -90,31 +98,27 @@ const Header = () => {
               </Menu>
             </>
           ) : (
-            <Box sx={{ display: "flex", gap: 3 }}>
+            <Box sx={{ display: "flex", gap: 2 }}>
               {navLinks.map((link) => (
-                <Typography
+                <Button
                   key={link}
-                  variant="body1"
                   onClick={() => handleNavClick(link)}
-                  sx={{
-                    color: "white",
-                    cursor: "pointer",
-                    "&:hover": { color: "#9b6a3e" },
-                  }}
+                  sx={{ color: theme.palette.text.primary, fontWeight: "bold", textTransform: "none", "&:hover": { color: "#FF9800" } }}
                 >
                   {link}
-                </Typography>
+                </Button>
               ))}
             </Box>
           )}
-        </Toolbar>
-      </AppBar>
-      <CustomModal
-        setToken={setData}
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
-    </>
+
+          {/* Theme Toggle Button (Moon for Night Mode, Sun for Day Mode) */}
+          <IconButton onClick={toggleTheme} color="inherit" sx={{ ml: 2 }}>
+            {darkMode ? <LightModeIcon sx={{ color: "#FFC107" }} /> : <DarkModeIcon sx={{ color: "#FF9800" }} />}
+          </IconButton>
+        </Box>
+      </Toolbar>
+      <CustomModal setToken={setData} open={modalOpen} onClose={() => setModalOpen(false)} />
+    </AppBar>
   );
 };
 

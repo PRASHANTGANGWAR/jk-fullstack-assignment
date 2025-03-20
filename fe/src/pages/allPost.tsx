@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import CardGrid from '../components/card';
-import { Box, Typography, Snackbar, Alert } from '@mui/material';
+import { useEffect, useState } from "react";
+import CardGrid from "../components/card";
+import { Box, Typography, Snackbar, Alert } from "@mui/material";
 
-const PostList = () => {
+const AllPostList = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,15 +12,17 @@ const PostList = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const token = localStorage.getItem('token');
-
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/user`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/posts`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         setStatusCode(response.status);
 
@@ -30,7 +32,7 @@ const PostList = () => {
 
         const data = await response.json();
         if (data.data.length === 0) {
-          setError('No posts found');
+          setError("No posts found");
           setOpenSnackbar(true);
           return;
         }
@@ -41,7 +43,7 @@ const PostList = () => {
           setError(error.message);
           setOpenSnackbar(true);
         } else {
-          setError('An unknown error occurred');
+          setError("An unknown error occurred");
           setOpenSnackbar(true);
         }
       } finally {
@@ -57,19 +59,24 @@ const PostList = () => {
   return (
     <Box px={{ xs: 2, sm: 4, md: 8 }}>
       {error && (
-        <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(false)}>
-          <Alert severity={statusCode === 401 ? 'warning' : 'error'}>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={3000}
+          onClose={() => setOpenSnackbar(false)}
+        >
+          <Alert severity={statusCode === 401 ? "warning" : "error"}>
             {statusCode === 401
-              ? 'Unauthorized access. Please log in.'
+              ? "Unauthorized access. Please log in."
               : statusCode === 500
-              ? 'Server error. Please try again later.'
+              ? "Server error. Please try again later."
               : error}
           </Alert>
         </Snackbar>
       )}
-      <CardGrid title = {'My Blogs'} posts={posts} />
+      
+      <CardGrid posts={posts} title ={'All BLogs'} />
     </Box>
   );
 };
 
-export default PostList;
+export default AllPostList;

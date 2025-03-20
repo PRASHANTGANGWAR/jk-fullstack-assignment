@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { TextField, Button, Typography, Box, Snackbar, Alert } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Snackbar,
+  Alert,
+  useTheme,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ROUTES from "../utils/routes";
 
@@ -17,6 +25,8 @@ const CreatePost: React.FC = () => {
   });
 
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark"; // Detects current theme mode
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,7 +56,7 @@ const CreatePost: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/post`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/posts`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -55,20 +65,40 @@ const CreatePost: React.FC = () => {
       });
 
       if (response.ok) {
-        setSnackbar({ open: true, message: "Post created successfully!", severity: "success" });
+        setSnackbar({
+          open: true,
+          message: "Post created successfully!",
+          severity: "success",
+        });
         setTimeout(() => navigate(ROUTES.POSTLIST), 1000);
       } else {
         if (response.status === 401) {
-          setSnackbar({ open: true, message: "Unauthorized! Please log in.", severity: "warning" });
+          setSnackbar({
+            open: true,
+            message: "Unauthorized! Please log in.",
+            severity: "warning",
+          });
         } else if (response.status === 500) {
-          setSnackbar({ open: true, message: "Server error. Please try again later.", severity: "error" });
+          setSnackbar({
+            open: true,
+            message: "Server error. Please try again later.",
+            severity: "error",
+          });
         } else {
-          setSnackbar({ open: true, message: "Failed, Creating post.", severity: "error" });
+          setSnackbar({
+            open: true,
+            message: "Failed, Creating post.",
+            severity: "error",
+          });
         }
       }
     } catch (error) {
       console.error("API Error:", error);
-      setSnackbar({ open: true, message: "An error occurred while submitting.", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "An error occurred while submitting.",
+        severity: "error",
+      });
     }
   };
 
@@ -86,9 +116,11 @@ const CreatePost: React.FC = () => {
           padding: 3,
           boxShadow: 3,
           borderRadius: 2,
+          backgroundColor: isDarkMode ? "#333" : "#fff", 
+          color: isDarkMode ? "#fff" : "#000", 
         }}
       >
-        <Typography variant="h5" align="center">
+        <Typography variant="h4" align="center">
           Create Blog
         </Typography>
         <TextField
@@ -98,6 +130,14 @@ const CreatePost: React.FC = () => {
           onChange={handleChange}
           fullWidth
           required
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": { borderColor: isDarkMode ? "white" : "black" },
+              "&:hover fieldset": { borderColor: isDarkMode ? "gray" : "black" },
+              "&.Mui-focused fieldset": { borderColor: isDarkMode ? "gray" : "black" },
+              color: isDarkMode ? "white" : "black",
+            },
+          }}
         />
         <TextField
           label="Description"
@@ -108,26 +148,53 @@ const CreatePost: React.FC = () => {
           multiline
           rows={4}
           required
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": { borderColor: isDarkMode ? "white" : "black" },
+              "&:hover fieldset": { borderColor: isDarkMode ? "gray" : "black" },
+              "&.Mui-focused fieldset": { borderColor: isDarkMode ? "gray" : "black" },
+              color: isDarkMode ? "white" : "black",
+            },
+          }}
         />
-        <Button variant="contained" component="label">
+        <Button
+          sx={{
+            background: isDarkMode ? "white" : "black",
+            color: isDarkMode ? "black" : "white",
+            "&:hover": {
+              background: isDarkMode ? "#ddd" : "#333",
+            },
+          }}
+          variant="contained"
+          component="label"
+        >
           Upload Image
-          <input
-            type="file"
-            hidden
-            accept="image/*"
-            onChange={handleImageChange}
-          />
+          <input type="file" hidden accept="image/*" onChange={handleImageChange} />
         </Button>
         {formData.image && (
           <Typography variant="body2">Selected: {formData.image}</Typography>
         )}
-        <Button type="submit" variant="contained" color="primary">
+        <Button
+          sx={{
+            background: isDarkMode ? "white" : "black",
+            color: isDarkMode ? "black" : "white",
+            "&:hover": {
+              background: isDarkMode ? "#ddd" : "#333",
+            },
+          }}
+          type="submit"
+          variant="contained"
+        >
           Submit
         </Button>
       </Box>
 
       {/* Snackbar for notifications */}
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
         <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
       </Snackbar>
     </Box>

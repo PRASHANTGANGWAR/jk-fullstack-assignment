@@ -23,4 +23,9 @@ export class PostService {
   async findById(user: string, id: string): Promise<Post> {
     return await this.post.findOne({ where: { user_id: user, id } }); // Fetching a single post by ID and user ID
   }
+
+  // Function to retrieve all blog post 
+  async findAll(): Promise<Post[]> {
+    return await this.post.findAll();
+  }
 }

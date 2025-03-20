@@ -5,6 +5,7 @@ import PostList from "./pages/postList";
 import PostDetail from "./pages/postDetail";
 import ROUTES from "./utils/routes";
 import CreatePost from "./pages/createPost";
+import AllPostList from "./pages/allPost";
 
 function App() {  
   const routes = useRoutes([
@@ -33,6 +34,10 @@ function App() {
           path: ROUTES.POSTDETAIL,
           element: <PostDetail />,
         },
+        {
+          path:ROUTES.ALLPOST,
+          element:<AllPostList/>
+        }
       ],
     },
   ]);

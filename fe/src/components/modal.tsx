@@ -1,4 +1,4 @@
-import * as React from "react"; // ✅ Fix: Use named import
+import * as React from "react";
 import { useEffect } from "react";
 import {
   Modal,
@@ -14,10 +14,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 interface CustomModalProps {
   open: boolean;
   onClose: () => void;
-  setToken: (value: string | null) => void;  // rename func name
+  setToken: (value: string | null) => void;
 }
 
-const CustomModal: React.FC<CustomModalProps> = ({ open, onClose, setToken }: CustomModalProps) => {
+const CustomModal: React.FC<CustomModalProps> = ({ open, onClose, setToken }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");
@@ -41,24 +41,20 @@ const CustomModal: React.FC<CustomModalProps> = ({ open, onClose, setToken }: Cu
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: { xs: "90%", sm: 400 },
-          maxWidth: 400,
-          height: { xs: "auto", sm: 500 },
-          bgcolor: "white",
-          p: { xs: 3, sm: 4 },
+          maxWidth: 420,
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          borderRadius: 3,
+          p: 4,
           textAlign: "center",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
         }}
       >
         <IconButton
           onClick={onClose}
-          sx={{
-            position: "absolute",
-            top: 10,
-            right: 10,
-          }}
+          sx={{ position: "absolute", top: 10, right: 10 }}
         >
           <CloseIcon />
         </IconButton>
@@ -66,14 +62,10 @@ const CustomModal: React.FC<CustomModalProps> = ({ open, onClose, setToken }: Cu
         <img
           src={logo}
           alt="Login"
-          style={{
-            width: 200,
-            height: 200,
-            marginBottom: 16,
-          }}
+          style={{ width: 180, height: 180, marginBottom: 16 }}
         />
 
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" fontWeight={600} gutterBottom>
           Sign in to Continue
         </Typography>
 
@@ -81,14 +73,14 @@ const CustomModal: React.FC<CustomModalProps> = ({ open, onClose, setToken }: Cu
           href={`${import.meta.env.VITE_API_URL}/google`}
           style={{
             display: "block",
-            marginTop: "5px",
-            width: "95%",
+            marginTop: "12px",
+            width: "100%",
             textAlign: "center",
-            backgroundColor: "#1976D2",
+            backgroundColor: "black",
             color: "white",
-            padding: "10px",
+            padding: "12px",
             textDecoration: "none",
-            borderRadius: "4px",
+            borderRadius: "8px",
             fontSize: "16px",
             fontWeight: "bold",
           }}
@@ -96,7 +88,17 @@ const CustomModal: React.FC<CustomModalProps> = ({ open, onClose, setToken }: Cu
           Sign in with Google
         </a>
 
-        <Button variant="outlined" fullWidth onClick={onClose} sx={{ mt: 2 }}>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={onClose}
+          sx={{
+            mt: 2,
+            backgroundColor: "black",
+            color: "white",
+            "&:hover": { backgroundColor: "#333" },
+          }}
+        >
           Cancel
         </Button>
       </Box>

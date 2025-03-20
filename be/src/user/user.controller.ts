@@ -24,7 +24,7 @@ import { getResponseMessage, errorResponse, message } from '../helper/index'; //
  */
 @ApiTags('User') // Grouping the controller under 'User' in Swagger documentation
 @ApiBearerAuth() // Requires Bearer Token for authentication
-@Controller('user') // Base route: /user
+@Controller('users') // Base route: /user
 export class UserController {
   constructor(private readonly userService: UserService) { } // Injecting the user service
 
@@ -36,7 +36,7 @@ export class UserController {
    * @param res The response object used to send responses.
    */
   @UseGuards(JwtGuard) // Protects the route with JWT authentication
-  @Get('')
+  @Get()
   async findOne(@Req() req: any, @Res() res: Response) {
     try {
       // Fetch user data based on the authenticated user's ID
@@ -66,7 +66,7 @@ export class UserController {
    * @param res The response object used to send responses.
    */
   @UseGuards(JwtGuard) // Protects the route with JWT authentication
-  @Patch('')
+  @Patch()
   async update(
     @Req() req: any,
     @Body() updateUserDto: UpdateUserDto, // Data Transfer Object for user updates

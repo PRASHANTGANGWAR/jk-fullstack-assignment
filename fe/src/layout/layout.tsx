@@ -21,7 +21,7 @@ const Layout = () => {
         flexGrow={1}
         sx={{
           overflowY: "auto",
-          marginTop: "64px",
+          marginTop: "80px",
           paddingBottom: "50px",
         }}
       >

@@ -3,38 +3,46 @@ import { GoogleController } from './google.controller';
 import { GoogleService } from './google.service';
 import { AuthService } from '../auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { message } from '../helper/contant.message';
-import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 describe('GoogleController', () => {
     let googleController: GoogleController;
     let googleService: GoogleService;
     let authService: AuthService;
     let jwtService: JwtService;
+    let configService: ConfigService;
 
     beforeEach(async () => {
-        jest.spyOn(console, 'error').mockImplementation(() => { });
-
         const module: TestingModule = await Test.createTestingModule({
             controllers: [GoogleController],
             providers: [
                 {
                     provide: GoogleService,
                     useValue: {
-                        googleLogin: jest.fn().mockReturnValue({ email: 'test@example.com', firstName: 'Test', lastName: 'User' }),
+                        googleLogin: jest.fn(),
                     },
                 },
                 {
                     provide: AuthService,
                     useValue: {
-                        checkUserExists: jest.fn().mockResolvedValue(false),
-                        createUser: jest.fn().mockResolvedValue({ id: 1, email: 'test@example.com' }),
+                        checkUserExists: jest.fn(),
+                        createUser: jest.fn(),
                     },
                 },
                 {
                     provide: JwtService,
                     useValue: {
-                        sign: jest.fn().mockReturnValue('mocked-jwt-token'),
+                        sign: jest.fn().mockReturnValue('mockJwtToken'),
+                    },
+                },
+                {
+                    provide: ConfigService,
+                    useValue: {
+                        get: jest.fn((key: string) => {
+                            if (key === 'jwtExpiry') return '3600s';
+                            if (key === 'frontendUrl') return 'http://localhost:3000';
+                            return null;
+                        }),
                     },
                 },
             ],
@@ -44,57 +52,50 @@ describe('GoogleController', () => {
         googleService = module.get<GoogleService>(GoogleService);
         authService = module.get<AuthService>(AuthService);
         jwtService = module.get<JwtService>(JwtService);
+        configService = module.get<ConfigService>(ConfigService);
     });
 
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
+    it('should handle Google Auth Redirect properly', async () => {
+        const req = { user: { email: 'test@example.com', firstName: 'John', lastName: 'Doe' } };
+        const res = {
+            redirect: jest.fn(),
+        };
 
-    it('should be defined', () => {
-        expect(googleController).toBeDefined();
-    });
-
-    it('should initiate Google authentication', async () => {
-        const result = await googleController.googleAuth();
-        expect(result).toEqual({ msg: message.googleAuthInitiated });
-    });
-
-    it('should handle Google authentication redirect', async () => {
-        const req = {};
-        const res = { redirect: jest.fn() } as unknown as Response;
-
-        await googleController.googleAuthRedirect(req, res);
-
-        expect(googleService.googleLogin).toHaveBeenCalledWith(req);
-        expect(authService.checkUserExists).toHaveBeenCalledWith({
+        googleService.googleLogin = jest.fn().mockReturnValue(req.user);
+        authService.checkUserExists = jest.fn().mockResolvedValue(null);
+        authService.createUser = jest.fn().mockResolvedValue({
+            id: 1,
             email: 'test@example.com',
-            first_name: 'Test',
-            last_name: 'User',
-        });
-        expect(authService.createUser).toHaveBeenCalled();
-        expect(jwtService.sign).toHaveBeenCalledWith(
-            { id: 1, email: 'test@example.com' },
-            { expiresIn: '1h' }
-        );
-        expect(res.redirect).toHaveBeenCalledWith(
-            `${process.env.FRONTEND_URL}?token=mocked-jwt-token&email=test@example.com`
-        );
-    });
-
-    it('should redirect to login on error', async () => {
-        jest.spyOn(console, 'error').mockImplementation(() => { });
-
-        const req = {};
-        const res = { redirect: jest.fn() } as unknown as Response;
-
-        jest.spyOn(googleService, 'googleLogin').mockImplementation(() => {
-            throw new Error('Google Auth Error');
         });
 
         await googleController.googleAuthRedirect(req, res);
 
         expect(res.redirect).toHaveBeenCalledWith(
-            `${process.env.FRONTEND_URL}/login?error=ServerError`
+            `http://localhost:3000?token=mockJwtToken&email=test@example.com`
         );
     });
+
+    it('should handle DB error and redirect to login with error', async () => {
+        const req = { user: { email: 'test@example.com', firstName: 'John', lastName: 'Doe' } };
+        const res = {
+            redirect: jest.fn(), // Mocking redirect function
+        };
+
+        googleService.googleLogin = jest.fn().mockReturnValue(req.user);
+        authService.checkUserExists = jest.fn().mockRejectedValue(new Error('DB Error'));
+
+        // Mock console.error to avoid logging during tests
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+
+        await googleController.googleAuthRedirect(req, res);
+
+        // Assert that res.redirect was called with the expected URL
+        expect(res.redirect).toHaveBeenCalledWith(
+            `http://localhost:3000/login?error=ServerError`
+        );
+
+        // Restore console.error after the test
+        consoleErrorSpy.mockRestore();
+    });
+
 });

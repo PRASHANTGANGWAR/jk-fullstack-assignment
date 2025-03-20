@@ -10,7 +10,7 @@ import { CreateBlogDto } from './dto/post.dto';
 
 @ApiTags('Post') // Swagger API documentation tag
 @ApiBearerAuth() // Adds Bearer Token authentication for API security
-@Controller('post') // Defines the base route as '/post'
+@Controller('posts') // Defines the base route as '/post'
 export class PostController {
   constructor(private readonly postService: PostService) { }
   private readonly logger = new Logger('Post'); // Logger instance for debugging
@@ -54,8 +54,30 @@ export class PostController {
     }
   }
 
+  @Get() // HTTP GET method to fetch all post
+  async findAllPost(@Req() req, @Res() res: Response) {
+    try {
+      const data = await this.postService.findAll();
+
+      if (data.length) {
+        res
+          .status(HttpStatus.OK)
+          .send(getResponseMessage(true, message.getBlog, data));
+      } else {
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .send(errorResponse(false, message.blogNotFound));
+      }
+    } catch (error) {
+      this.logger.log(error); // Log error for debugging
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .send(errorResponse(false, message.serverError));
+    }
+  }
+
   @UseGuards(JwtGuard) // Protects the route with JWT authentication
-  @Get() // HTTP GET method to fetch all blogs for a user
+  @Get('user') // HTTP GET method to fetch all blogs for a user
   async findAll(@Req() req, @Res() res: Response) {
     try {
       const user = req?.user?.id; // Extract user ID from request

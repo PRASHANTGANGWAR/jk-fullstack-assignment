@@ -1,27 +1,29 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardMedia, Typography, Box, Button, Grid } from "@mui/material";
+import { Card, CardMedia, Typography, Box, Button, Grid2 } from "@mui/material";
 import ROUTES from "../utils/routes";
 
 type CardData = {
   image: string;
   title: string;
   body: string;
+  createdAt: string; 
 };
 
 interface CardGridProps {
   posts: CardData[];
+  title:string
 }
 
 const truncateText = (text: string, limit: number) => {
   return text.length > limit ? text.substring(0, limit) + "..." : text;
 };
 
-const HoverCard: React.FC<CardData> = ({ image, title, body }) => {
+const HoverCard: React.FC<CardData> = ({ image, title, body, createdAt }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate(ROUTES.POSTDETAIL, { state: { image, title, body } });
+    navigate(ROUTES.POSTDETAIL, { state: { image, title, body, createdAt } });
   };
 
   return (
@@ -59,10 +61,15 @@ const HoverCard: React.FC<CardData> = ({ image, title, body }) => {
       </Box>
 
       <Box sx={{ flex: 2, paddingLeft: 3 }}>
-        <Typography variant="h6" fontWeight="bold" color="#333">
-          {title.split(" ").slice(0, -1).join(" ")}{" "}
+        <Typography variant="h5" fontWeight="medium" color="#000000" mb={1}>
+          Published on: {new Date(createdAt).toLocaleDateString()}
+        </Typography>
+        
+        <Typography variant="h5" fontWeight="bold" color="#333">
+          {title.split(" ").slice(0, -1).join(" ")} {" "}
           <i style={{ color: "#333" }}>{title.split(" ").slice(-1)}</i>
         </Typography>
+
         <Typography
           variant="body2"
           sx={{
@@ -80,7 +87,7 @@ const HoverCard: React.FC<CardData> = ({ image, title, body }) => {
           sx={{
             marginTop: 2,
             backgroundColor: "#000000",
-            color: "#fffff",
+            color: "#ffffff",
             textTransform: "none",
             borderRadius: 20,
             padding: "6px 16px",
@@ -95,19 +102,19 @@ const HoverCard: React.FC<CardData> = ({ image, title, body }) => {
   );
 };
 
-const CardGrid: React.FC<CardGridProps> = ({ posts }) => {
+const CardGrid: React.FC<CardGridProps> = ({ posts ,title }) => {
   return (
     <Box mt={4} mb={4} textAlign="center">
       <Typography variant="h4" fontWeight="bold" mb={3} color="#00000">
-        My Blogs
+        {title}
       </Typography>
-      <Grid container spacing={4} justifyContent="center">
+      <Grid2 container spacing={4} justifyContent="center">
         {posts?.map((card: CardData, index: number) => (
-          <Grid item key={index} xs={12} md={6}>
+          <Grid2  key={index} size = {{xs:12,md:6}} >
             <HoverCard {...card} />
-          </Grid>
+          </Grid2>
         ))}
-      </Grid>
+      </Grid2>
     </Box>
   );
 };
