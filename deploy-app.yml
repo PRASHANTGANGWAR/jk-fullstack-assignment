@@ -20,7 +20,7 @@
 
     - name: Clone Node.js app repository
       git:
-        repo: https://gitlab.com/assignments9642411/blog-app.git
+        repo: https://github.com/PRASHANTGANGWAR/jk-fullstack-assignment.git
         dest: /var/www/html/blog-app
 
     - name: Get instance public IP
