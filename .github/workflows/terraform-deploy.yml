@@ -10,10 +10,6 @@ jobs:
     name: Terraform & Ansible Deployment
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: .
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -21,7 +17,7 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.7 # Use the version you prefer
+          terraform_version: 1.5.7
 
       - name: Terraform Init
         run: terraform init
@@ -29,11 +25,22 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
-      - name: Install Ansible
+      - name: Install Python and pip
         run: |
           sudo apt update
+          sudo apt install -y python3 python3-pip
+
+      - name: Install Ansible and Python dependencies
+        run: |
           sudo apt install -y ansible
+          pip3 install paramiko
+
+      - name: Set PEM File Permission
+        run: chmod 400 my-key.pem
 
       - name: Run Ansible Playbook
-        run: |
-          ansible-playbook -i dynamic_inventory.ini deploy-app.yml
+        run: ansible-playbook -i dynamic_inventory.ini deploy-app.yml
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
