@@ -7,6 +7,6 @@ export class AppService {
    * This can be useful for health checks.
    */
   getHello(): string {
-    return 'Application running';
+    return 'Application running !!';
   }
 }
