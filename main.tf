@@ -11,17 +11,16 @@ provider "aws" {
   region     = "ap-south-1"
 }
 
-// To Generate Private Key
+variable "key_name" {
+  description = "Name of the SSH key pair"
+  default     = "my-key.pem"
+}
+
 resource "tls_private_key" "rsa_4096" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
-variable "key_name" {
-  description = "Name of the SSH key pair"
-}
-
-// Create Key Pair for Connecting EC2 via SSH
 resource "aws_key_pair" "key_pair" {
   key_name   = var.key_name
   public_key = tls_private_key.rsa_4096.public_key_openssh
@@ -56,7 +55,7 @@ resource "aws_security_group" "sg_ec2" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- ingress {
+  ingress {
     from_port   = 3001
     to_port     = 3001
     protocol    = "tcp"
