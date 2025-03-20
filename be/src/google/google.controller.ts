@@ -4,6 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../auth/auth.service';
 import { message } from '../helper/contant.message';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('google')
 export class GoogleController {
@@ -14,6 +15,7 @@ export class GoogleController {
   constructor(
     private readonly googleService: GoogleService,
     private readonly authService: AuthService,
+    private readonly config: ConfigService,
     private jwt: JwtService,
   ) { }
 
@@ -29,6 +31,9 @@ export class GoogleController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req, @Res() res) {
     try {
+      const jwtExpiry = this.config.get<string>('jwtExpiry');
+      const frontendUrl = this.config.get<string>('frontendUrl');
+
       // Retrieve user information from Google login response
       let user = this.googleService.googleLogin(req);
 
@@ -52,19 +57,19 @@ export class GoogleController {
           email: user.email,
         },
         {
-          expiresIn: '1h',
+          expiresIn: jwtExpiry,
         },
       );
 
       // Redirect user to frontend with authentication token or error message
       if (user && token) {
-        res.redirect(`${process.env.FRONTEND_URL}?token=${token}&email=${user?.email}`);
+        res.redirect(`${frontendUrl}?token=${token}&email=${user?.email}`);
       } else {
-        res.redirect(`${process.env.FRONTEND_URL}/login?error=LoginFailed`);
+        res.redirect(`${frontendUrl}/login?error=LoginFailed`);
       }
     } catch (error) {
       console.error(message.googleAuthRedirectError, error);
-      res.redirect(`${process.env.FRONTEND_URL}/login?error=ServerError`);
+      res.redirect(`${this.config.get('frontendUrl')}/login?error=ServerError`);
     }
   }
 }

@@ -17,18 +17,18 @@ import { JwtModule as JwtRootModule, JwtSecretRequestType } from '@nestjs/jwt';
           secretOrKeyProvider(type: JwtSecretRequestType) {
             switch (type) {
               case JwtSecretRequestType.SIGN:
-                return config.get<string>('jwtPrivateKey'), 'utf8'; // Correct return statement
+                return config.get<string>('jwtPrivateKey'), 'utf8';
 
               case JwtSecretRequestType.VERIFY:
-                return config.get<string>('jwtPublicKey'), 'utf8'; // Correct return statement
+                return config.get<string>('jwtPublicKey'), 'utf8';
 
               default:
                 throw new Error('Invalid JwtSecretRequestType');
             }
           },
           signOptions: {
-            expiresIn: config.get<string>('jwtExpiry'), // Expiry time from config
-            issuer: config.get<string>('jwtIssuer'), // Issuer from config
+            expiresIn: config.get<string>('jwtExpiry'),
+            issuer: config.get<string>('jwtIssuer'),
           },
         };
       },

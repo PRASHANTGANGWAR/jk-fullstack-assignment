@@ -13,7 +13,7 @@ import { CreateBlogDto } from './dto/post.dto';
 @Controller('post') // Defines the base route as '/post'
 export class PostController {
   constructor(private readonly postService: PostService) { }
-  private readonly logger = new Logger('Blog'); // Logger instance for debugging
+  private readonly logger = new Logger('Post'); // Logger instance for debugging
 
   @UseGuards(JwtGuard) // Protects the route with JWT authentication
   @Post() // HTTP POST method for creating a blog
@@ -67,7 +67,7 @@ export class PostController {
           .send(getResponseMessage(true, message.getBlog, data));
       } else {
         res
-          .status(HttpStatus.BAD_REQUEST)
+          .status(HttpStatus.NOT_FOUND)
           .send(errorResponse(false, message.blogNotFound));
       }
     } catch (error) {

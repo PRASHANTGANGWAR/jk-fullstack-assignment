@@ -1,4 +1,4 @@
-export function getResponseMessage(success, message, data) {
+export function getResponseMessage(success: boolean, message: string, data: object | object[]) {
   return {
     success,
     message,
@@ -6,7 +6,7 @@ export function getResponseMessage(success, message, data) {
   };
 }
 
-export function errorResponse(success, message) {
+export function errorResponse(success: boolean, message: string) {
   return {
     success,
     message,

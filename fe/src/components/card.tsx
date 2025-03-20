@@ -61,7 +61,7 @@ const HoverCard: React.FC<CardData> = ({ image, title, body }) => {
       <Box sx={{ flex: 2, paddingLeft: 3 }}>
         <Typography variant="h6" fontWeight="bold" color="#333">
           {title.split(" ").slice(0, -1).join(" ")}{" "}
-          <i style={{ color: "#007BFF" }}>{title.split(" ").slice(-1)}</i>
+          <i style={{ color: "#333" }}>{title.split(" ").slice(-1)}</i>
         </Typography>
         <Typography
           variant="body2"
@@ -79,8 +79,8 @@ const HoverCard: React.FC<CardData> = ({ image, title, body }) => {
           variant="contained"
           sx={{
             marginTop: 2,
-            backgroundColor: "#007BFF",
-            color: "white",
+            backgroundColor: "#000000",
+            color: "#fffff",
             textTransform: "none",
             borderRadius: 20,
             padding: "6px 16px",
@@ -98,8 +98,8 @@ const HoverCard: React.FC<CardData> = ({ image, title, body }) => {
 const CardGrid: React.FC<CardGridProps> = ({ posts }) => {
   return (
     <Box mt={4} mb={4} textAlign="center">
-      <Typography variant="h4" fontWeight="bold" mb={3} color="#FF6B6B">
-        OUR Recent Blogs
+      <Typography variant="h4" fontWeight="bold" mb={3} color="#00000">
+        My Blogs
       </Typography>
       <Grid container spacing={4} justifyContent="center">
         {posts?.map((card: CardData, index: number) => (

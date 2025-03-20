@@ -15,5 +15,6 @@ export const message = {
   imageRequired: "Image is required.",
   googleAuthInitiated: "Google authentication initiated.",
   methodNotImplemented: "Method not implemented.",
-  googleAuthRedirectError: "Google Auth Redirect Error."
+  googleAuthRedirectError: "Google Auth Redirect Error.",
+  googleAuthFailed: "Authentication failed. No user data received from Google."
 };

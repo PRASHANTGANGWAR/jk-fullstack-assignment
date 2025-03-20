@@ -63,7 +63,7 @@ const CreatePost: React.FC = () => {
         } else if (response.status === 500) {
           setSnackbar({ open: true, message: "Server error. Please try again later.", severity: "error" });
         } else {
-          setSnackbar({ open: true, message: "Failed to submit form.", severity: "error" });
+          setSnackbar({ open: true, message: "Failed, Creating post.", severity: "error" });
         }
       }
     } catch (error) {

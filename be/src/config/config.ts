@@ -8,4 +8,6 @@ export const configuration = () => ({
   jwtIssuer: process.env.JWT_ISSUER,
   jwtPrivateKey: process.env.JWT_PRIVATE_KEY,
   jwtPublicKey: process.env.JWT_PUBLIC_KEY,
+  frontendUrl: process.env.FRONTEND_URL,
+  backendUrl: process.env.BACKEND_URL
 });

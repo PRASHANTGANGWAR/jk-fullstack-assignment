@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { message } from '../helper/index';
 
 @Injectable()
 export class GoogleService {
@@ -6,7 +7,7 @@ export class GoogleService {
     googleLogin(req) {
         // If no user data is found in the request, return an error message
         if (!req.user) {
-            return 'No user from Google';
+            return message.googleAuthFailed;
         }
 
         // Return the authenticated user details

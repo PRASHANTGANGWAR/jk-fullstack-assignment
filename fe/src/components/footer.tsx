@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
     <Box
       component="footer"
       sx={{
-        backgroundColor: "#3a4237",
+        backgroundColor: "#000000",
         color: "white",
         padding: "30px 20px",
         display: "flex",
@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
  
       <Box sx={{ position: "relative", bottom: "10px", left: "50%", transform: "translateX(-50%)", width: "100%", textAlign: "center" }}>
         <Typography variant="body2">
-          © 2035 by On the Trail.
+          © footer.
         </Typography>
       </Box>
     </Box>

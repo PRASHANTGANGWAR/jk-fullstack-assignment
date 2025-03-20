@@ -48,7 +48,6 @@ const Header = () => {
     }
     handleMenuClose();
   };
-  console.log(data, 'dataaaa')
   const navLinks = data || localStorage.getItem('token')
     ? ["My Blogs", "Create BLog", "LOGOUT"]
     : ["LOGIN"];
@@ -56,7 +55,7 @@ const Header = () => {
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: "#3a4237", p: 1 }}>
+      <AppBar position="static" sx={{ backgroundColor: "#000000", p: 1 }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <img
@@ -69,7 +68,7 @@ const Header = () => {
               variant={isMobile ? "h5" : "h3"}
               sx={{ fontWeight: "bold", color: "#9b6a3e" }}
             >
-              BLOGGER
+              BLOGS
             </Typography>
           </Box>
           {email && <Typography> Hi, {email}</Typography>}
