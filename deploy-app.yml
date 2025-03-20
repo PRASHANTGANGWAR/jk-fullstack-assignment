@@ -53,6 +53,7 @@
         - { key: "FRONTEND_URL", value: "http://{{ instance_ip }}:5173" }
         - { key: "BACKEND_URL", value: "{{ dns_url }}:3001" }
         - { key: "JWT_PRIVATE_KEY", value: "46fTZa2OeMRYkOvGf1EYnJdG5McTATTnd2DQGuEajao=" }
+        - { key: "JWT_EXPIRY", value: "1h" }
         - { key: "GOOGLE_CLIENT_ID", value: "162484514028-isnfps4rgu3gvnaubkd72hldplt450vu.apps.googleusercontent.com" }
         - { key: "GOOGLE_SECRET", value: "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" }
         - { key: "DB_HOST", value: "13.127.52.168" }
